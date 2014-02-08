@@ -23,7 +23,7 @@ function newMeal(request, response, data) {
 }
 
 function sendNearbyUsers(response, data) {
-	var nearby = db.meals.find({food_preference:data.food_preference});
+	var nearby = db.meals.find({food_preference:data.food_preference, location:data.location});
 	nearby.limit(10).toArray(function(err,arr) { response.send(200, {}, {nearby:arr}) });
 }
 
