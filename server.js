@@ -16,14 +16,13 @@ router.post('/new').bind(newMeal);
 var MAX_MATCH_DISTANCE = 3
 
 
-
 function newMeal(request, response, data) {
 	sendNearbyUsers(response, data);
 	db.meals.update({ user_id: data.user_id }, data, { upsert: true });
 }
 
 function sendNearbyUsers(response, data) {
-	var nearby = db.meals.find({food_preference:data.food_preference});
+	var nearby = db.meals.find({user_id: { $ne: data.user_id }, food_preference: data.food_preference});
 	nearby.limit(10).toArray(function(err,arr) { response.send(200, {}, {nearby:arr}) });
 }
 
