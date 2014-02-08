@@ -5,7 +5,7 @@ var router = new(journey.Router);
 router.post('/dist').bind(dist);
 
 function dist(request, response, data) {
-	response.send({ dist:distanceBetween(data, {latitude:1.5,latitude:1.5}) });
+	response.send({ dist:distanceBetween(data, {latitude:1.5, longitude:1.5}) });
 }
 
 function distanceBetween(l1, l2) {
@@ -15,7 +15,7 @@ function distanceBetween(l1, l2) {
 	var lat1 = l1.latitude.toRad();
 	var lat2 = l2.latitude.toRad();
 
-	var a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLon/2) * Math.sin(dLon/2)) * (Math.cos(lat1) * Math.cos(lat2)); 
+	var a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2)); 
 	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
 	return EARTH_RADIUS * c;
 }
