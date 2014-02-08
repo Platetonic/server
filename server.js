@@ -17,35 +17,15 @@ var MAX_MATCH_DISTANCE = 3
 
 
 function newMeal(request, response, data) {
-	sendNearbyUsers(response, data);
+	sendMatchedUsers(response, data);
+	data.creation_time = new Date().getTime();
 	db.meals.update({ user_id: data.user_id }, data, { upsert: true });
 }
 
-function sendNearbyUsers(response, data) {
-	var nearby = db.meals.find({user_id: { $ne: data.user_id }, food_preference: data.food_preference});
-	nearby.limit(10).toArray(function(err,arr) { response.send(200, {}, {nearby:arr}) });
+function sendMatchedUsers(response, data) {
+	var matched = db.meals.find({user_id: { $ne: data.user_id }, restaurant_id: data.restaurant_id});
+	matched.limit(10).toArray(function(err,arr) { response.send(200, {}, {matched:arr}) });
 }
-
-/** Converts numeric degrees to radians */
-if (typeof(Number.prototype.toRad) === "undefined") {
-	Number.prototype.toRad = function() {
-		return this * Math.PI / 180;
-	}
-}
-
-function distanceBetween(l1, l2) {
-	var EARTH_RADIUS = 3963.1906;
-	var dLat = (l1.latitude - l2.latitude).toRad();
-	var dLon = (l1.longitude - l2.longitude).toRad();
-	var lat1 = l1.latitude.toRad();
-	var lat2 = l2.latitude.toRad();
-
-	var a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2)); 
-	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-	return EARTH_RADIUS * c;
-}
-
-
 
 require('http').createServer(function (request, response) {
 	var body = "";
