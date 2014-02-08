@@ -87,4 +87,4 @@ require('http').createServer(function (request, response) {
 
 console.log('starting');
 
-// Use curl -X POST -H "Content-Type: application/json" -d '{"name":"ok","longitude":31}' http://localhost:8080/store
+// Use curl -X POST -H "Content-Type: application/json" -d '{"user_id":"ok","food_preference":"no","location":{"longitude":31,"latitude":23}}' http://localhost:8080/store
