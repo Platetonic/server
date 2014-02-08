@@ -49,6 +49,13 @@ function getNearbyUsers(data) {
 	return nearby.limit(10);
 }
 
+/** Converts numeric degrees to radians */
+if (typeof(Number.prototype.toRad) === "undefined") {
+  Number.prototype.toRad = function() {
+    return this * Math.PI / 180;
+  }
+}
+
 function distanceBetween(l1, l2) {
 	var EARTH_RADIUS = 3963.1906;
 	var dLat = (l1.latitude - l2.latitude).toRad();
@@ -56,10 +63,11 @@ function distanceBetween(l1, l2) {
 	var lat1 = l1.latitude.toRad();
 	var lat2 = l2.latitude.toRad();
 
-	var a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2); 
+	var a = (Math.sin(dLat/2) * Math.sin(dLat/2)) + (Math.sin(dLon/2) * Math.sin(dLon/2) * Math.cos(lat1) * Math.cos(lat2)); 
 	var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
 	return EARTH_RADIUS * c;
 }
+
 
 
 require('http').createServer(function (request, response) {
@@ -78,3 +86,5 @@ require('http').createServer(function (request, response) {
 }).listen(8080);
 
 console.log('starting');
+
+// Use curl -X POST -H "Content-Type: application/json" -d '{"name":"ok","longitude":31}' http://localhost:8080/store
