@@ -1,10 +1,11 @@
 var http = require('http');
 var journey = require('journey');
+var mongojs = require('mongojs');
 
 var databaseUrl = 'plateonic';
 var collections = ["meals"];
-var db = require('mongojs');
-db.connect(databaseUrl, collections);
+
+var db = mongojs(databaseUrl, collections);
 
 
 var router = new(journey.Router);
@@ -17,43 +18,20 @@ var MAX_MATCH_DISTANCE = 3
 
 
 function newMeal(request, response, data) {
-	var existingMeals = db.meals.find({user_id:data.user_id}, function (err, found) {
-		if (err || !found) {
-			console.log('ERROR existing meals find');
-		}
-	});
-
-	if (existingMeals) {
-		db.meals.update({user_id:data.user_id}, {$set:data}, checkDBError);
-	}
-	else {
-		db.meals.insert(data);
-		response.send(200, {}, getNearbyUsers(data));
-	}
+	sendNearbyUsers(response, data);
+	db.meals.update({ user_id: data.user_id }, data, { upsert: true });
 }
 
-function checkDBError(err, updated) {
-	if(err || !updated) {
-		console.log('ERROR update');
-	}
-}
-
-function getNearbyUsers(data) {
-	var nearby = db.meals.find(
-	{
-		$where: function() {
-			return (this.food_preference == data.food_preference) &&
-			((distanceBetween(this.location, data.location) < MAX_MATCH_DISTANCE));
-		}
-	});
-	return nearby.limit(10);
+function sendNearbyUsers(response, data) {
+	var nearby = db.meals.find({food_preference:data.food_preference});
+	nearby.limit(10).toArray(function(err,arr) { response.send(200, {}, {nearby:arr}) });
 }
 
 /** Converts numeric degrees to radians */
 if (typeof(Number.prototype.toRad) === "undefined") {
-  Number.prototype.toRad = function() {
-    return this * Math.PI / 180;
-  }
+	Number.prototype.toRad = function() {
+		return this * Math.PI / 180;
+	}
 }
 
 function distanceBetween(l1, l2) {

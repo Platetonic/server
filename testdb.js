@@ -9,7 +9,7 @@ var db = mongojs('plateonic',['meals']);
 
 function store(request, response, data) {
 	if(data.name == 'ok') {
-		db.meals.insert(data);
+		db.meals.update({ name:data.name }, data, {upsert:true});
 		response.send(200, {}, {status:'ok'});
 	}
 	response.send(200, {}, {status:'failed'});
