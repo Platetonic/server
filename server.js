@@ -10,6 +10,8 @@ var db = mongojs(databaseUrl, collections);
 
 var router = new(journey.Router);
 
+var EXPIRATION_MILLISECONDS = 18000000;
+
 
 /*
 * ====================================================
@@ -19,18 +21,14 @@ var router = new(journey.Router);
 router.post('/new').bind(newMeal);
 
 function newMeal(request, response, data) {
-	if(!validateData(data)) {
+	if(!validateNew(data)) {
 		sendFail(response);
+		return;
 	}
-	else {
-		sendMatchedMeals(response, data);
-		data.creation_time = new Date().getTime();
-		db.meals.update({ user_id: data.user_id }, data, { upsert: true });
-	}
-}
 
-function validateData(data) {
-	return ('user_id' in data) && ('restaurant_id' in data) && ('phone_number' in data);
+	sendMatchedMeals(response, data);
+	data.creation_time = new Date().getTime();
+	db.meals.update({ user_id: data.user_id }, data, { upsert: true });
 }
 
 /*
@@ -42,14 +40,19 @@ function validateData(data) {
 router.post('/update').bind(getMatchedMeals)
 
 function getMatchedMeals(request, response, data) {
-	var mealData = db.meals.find({ user_id: data.user_id });
-
-	if(!mealData) {
+	if(!validateFields(data, ['user_id'])) {
 		sendFail(response);
+		return;
 	}
-	else {
-		sendMatchedMeals(response, mealData);
-	}
+
+	db.meals.findOne({ user_id: data.user_id }, function(err, meal) {
+		if(err || !meal) {
+			sendFail(response);
+		}
+		else {
+			sendMatchedMeals(response, meal);
+		}
+	});
 }
 
 function sendMatchedMeals(response, data) {
@@ -70,7 +73,7 @@ function matchMeals(data) {
 	{
 		user_id: { $ne: data.user_id },
 		restaurant_id: data.restaurant_id,
-		creation_time: { $lt: new Date().getTime() }
+		creation_time: { $gt: (new Date().getTime() - EXPIRATION_MILLISECONDS) }
 	});
 }
 
@@ -84,6 +87,23 @@ function sendFail(response) {
 function sendSuccess(response, data) {
 	data.status = "success";
 	response.send(200, {}, data);
+}
+
+/*
+* ====================================================
+*/
+
+function validateFields(data, fields) {
+	for (i = 0; i < fields.length; i++){
+		if ( !(fields[i] in data) ) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function validateNew(data) {
+	return validateFields(data, ['user_id', 'restaurant_id', 'phone_number']);
 }
 
 /*
