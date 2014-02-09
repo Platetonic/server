@@ -21,13 +21,13 @@ var EXPIRATION_SECONDS = 18000;
 router.post('/new').bind(newMeal);
 
 function newMeal(request, response, data) {
-	if(!validateNew(data)) {
+	if(!validateComplete(data)) {
 		sendFail(response);
 		return;
 	}
 
-	sendMatchedMeals(response, data);
 	addMealToDB(data);
+	getRestaurantMatches(request, response, data);
 }
 
 function addMealToDB(meal) {
@@ -38,13 +38,30 @@ function addMealToDB(meal) {
 
 /*
 * ====================================================
+* POST /view
+* View the matches for a certain restaurant given a
+* restaurant_id and user_id
+*/
+router.post('/view').bind(getRestaurantMatches);
+
+function getRestaurantMatches(request, response, data) {
+	if(!validateComplete(data)) {
+		sendFail(response);
+		return;
+	}
+
+	sendMatchedMeals(response, data);
+}
+
+/*
+* ====================================================
 * POST /update
 * Get all meals that match with a given user's current
 * meal
 */
-router.post('/update').bind(getMatchedMeals);
+router.post('/update').bind(getUserMatches);
 
-function getMatchedMeals(request, response, data) {
+function getUserMatches(request, response, data) {
 	if(!validateFields(data, ['user_id'])) {
 		sendFail(response);
 		return;
@@ -106,7 +123,7 @@ function validateFields(data, fields) {
 	return true;
 }
 
-function validateNew(data) {
+function validateComplete(data) {
 	return validateFields(data, ['user_id', 'restaurant_id']);
 }
 
