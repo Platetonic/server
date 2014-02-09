@@ -10,7 +10,7 @@ var db = mongojs(databaseUrl, collections);
 
 var router = new(journey.Router);
 
-var EXPIRATION_SECONDS = 5;
+var EXPIRATION_SECONDS = 18000;
 
 
 /*
