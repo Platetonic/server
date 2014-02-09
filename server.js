@@ -73,8 +73,12 @@ function matchMeals(data) {
 	{
 		user_id: { $ne: data.user_id },
 		restaurant_id: data.restaurant_id,
-		creation_time: { $gt: (new Date().getTime() - EXPIRATION_MILLISECONDS) }
+		creation_time: { $gt: expiredIfOlderThan() }
 	});
+}
+
+function expiredIfOlderThan() {
+	return (new Date().getTime() - EXPIRATION_MILLISECONDS);
 }
 
 /*
