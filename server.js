@@ -10,7 +10,7 @@ var db = mongojs(databaseUrl, collections);
 
 var router = new(journey.Router);
 
-var EXPIRATION_MILLISECONDS = 18000000;
+var EXPIRATION_SECONDS = 5;
 
 
 /*
@@ -27,8 +27,13 @@ function newMeal(request, response, data) {
 	}
 
 	sendMatchedMeals(response, data);
-	data.creation_time = new Date().getTime();
-	db.meals.update({ user_id: data.user_id }, data, { upsert: true });
+	addMealToDB(data);
+}
+
+function addMealToDB(meal) {
+	meal.createdAt = new Date();
+	meal.expireAfterSeconds = EXPIRATION_SECONDS;
+	db.meals.update({ user_id: meal.user_id }, meal, { upsert: true });
 }
 
 /*
@@ -72,13 +77,8 @@ function matchMeals(data) {
 	return db.meals.find(
 	{
 		user_id: { $ne: data.user_id },
-		restaurant_id: data.restaurant_id,
-		creation_time: { $gt: expiredIfOlderThan() }
+		restaurant_id: data.restaurant_id
 	});
-}
-
-function expiredIfOlderThan() {
-	return (new Date().getTime() - EXPIRATION_MILLISECONDS);
 }
 
 /*

@@ -10,5 +10,6 @@
 	"user_id": 0,
 	"restaurant_id": 1,
 	"phone_number": 5555555555,
-	"creation_time": "..."
+	"createdAt": "...",
+	"expireAfterSeconds":"..."
 }
