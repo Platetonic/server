@@ -1,15 +1,27 @@
-// Sent
+// POST /new
 {
-	"user_id": 0,
-	"restaurant_id": 1,
-	"phone_number": 5555555555
+	"user_id": 0, //required
+	"restaurant_id": 1, //required
+	"anything-else": ...
 }
 
-// Kept
+// POST /update
+{
+	"user_id": 0 //required
+}
+
+// Kept (Meal data)
 {
 	"user_id": 0,
 	"restaurant_id": 1,
-	"phone_number": 5555555555,
+	"anything-else": ...,
 	"createdAt": "...",
 	"expireAfterSeconds":"..."
+}
+
+// Returned "match" results
+{
+	"status": either "success" or "failed",
+	// if success
+	"matches": ["list of Meal data"]
 }

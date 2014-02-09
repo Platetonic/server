@@ -42,7 +42,7 @@ function addMealToDB(meal) {
 * Get all meals that match with a given user's current
 * meal
 */
-router.post('/update').bind(getMatchedMeals)
+router.post('/update').bind(getMatchedMeals);
 
 function getMatchedMeals(request, response, data) {
 	if(!validateFields(data, ['user_id'])) {
@@ -107,7 +107,7 @@ function validateFields(data, fields) {
 }
 
 function validateNew(data) {
-	return validateFields(data, ['user_id', 'restaurant_id', 'phone_number']);
+	return validateFields(data, ['user_id', 'restaurant_id']);
 }
 
 /*
@@ -130,4 +130,4 @@ require('http').createServer(function (request, response) {
 
 console.log('starting');
 
-// curl -X POST -H "Content-Type: application/json" -d '{"user_id":0,"restaurant_id": 1,"phone_number": 1}' http://localhost:8080/new
+// curl -X POST -H "Content-Type: application/json" -d '{"user_id":0,"restaurant_id": 1}' http://localhost:8080/new
